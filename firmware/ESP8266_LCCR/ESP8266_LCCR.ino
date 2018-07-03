@@ -67,11 +67,11 @@ void setup() {
   }
   pinMode(LED_BUILTIN, OUTPUT);
   //WiFiMulti.addAP("SSID", "passpasspass");
-  USE_SERIAL.println("Iniciando Wifi");
   //while(WiFiMulti.run() != WL_CONNECTED) {
   // USE_SERIAL.println(".");
   //   delay(100);
   //}
+  USE_SERIAL.println("Iniciando Wifi");
   WiFi.softAP("Elimu_LCCR", "elimu123");
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("Ip da placa: ");
@@ -79,21 +79,24 @@ void setup() {
   USE_SERIAL.println("Iniciando Webcsocket");
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
+  
+  // trata a request, pagina principal redireciona para o scratchx
+  server.on("/", []() {
+    server.send(200, "text/html", "<html><head><script>document.location.href=\"http://scratchx.org/#scratch\"; </script></head><body></body></html>");
+  });
+
+  server.begin();
+
+  #ifdef USAR_MDNS
   //Inicializa serviço mdns
   if (MDNS.begin("esp8266")) {
     USE_SERIAL.println("MDNS iniciou");
   }
 
-  // trata a request, pagina principal redireciona para o scratchx
-  server.on("/", []() {
-    server.send(200, "text/html", "<html><head><script>document.location.href=\"http://scratchx.org/#scratch\" </script></head><body></body></html>");
-  });
-
-  server.begin();
-
   // define os tipos de servico mDNS
   MDNS.addService("http", "tcp", 80);
   MDNS.addService("ws", "tcp", 81);
+ #endif
 }
 void executaAcaoLed(String led, String estado) {
   boolean estado_b = estado.equals("On");
