@@ -8,8 +8,8 @@
         }
     };
     function socketClose() {
-        if (ext._socket) ext._socket.close();
-        ext._socket = null;
+        if (window._lccr_socket) window._lccr_socket.close();
+        window._lccr_socket = null;
         ext._connected = false;
     }
     // Status reporting code
@@ -42,18 +42,19 @@
     }
 
     var initSocket = function () {
-        ext._socket = new WebSocket("ws://192.168.4.1:81");
-        ext._socket.onopen = function () {
+        socketClose();
+        window._lccr_socket = new WebSocket("ws://192.168.4.1:81");
+        window._lccr_socket.onopen = function () {
             ext._connected = true;
             notify_connect = true;
             console.log("Conectado :)")
         };
 
-        ext._socket.onmessage = function (message) {
+        window._lccr_socket.onmessage = function (message) {
             //var msg = JSON.parse(message.data);
             console.log(message.data)
         };
-        ext._socket.onclose = function (e) {
+        window._lccr_socket.onclose = function (e) {
             socketClose();
             ext._connected = false;
             console.log("Desconectado, tentando em 3s")
@@ -64,11 +65,11 @@
 
     function sendSocketMessage(obj) {
         if (isSocketOk()) {
-            ext._socket.send(JSON.stringify(obj));
+            window._lccr_socket.send(JSON.stringify(obj));
         }
     }
     function isSocketOk() {
-        return ext._socket && ext._connected;
+        return window._lccr_socket && ext._connected;
     }
     // Block and block menu descriptions
     var descriptor = {
